@@ -2,6 +2,8 @@ player_x = 15;
 player_y = 15;
 player_tile = 1;
 
+notification = "Arrow keys to move"
+
 function love.load()
   renderWorld()
 end
@@ -25,13 +27,13 @@ function renderWorld()
 
   house = {
     {3,8,8,8,8,8,8,8,5},
-    {7,0,0,0,0,0,0,0,7},
+    {7,0,2,0,2,0,2,0,7},
     {7,0,0,0,0,0,0,0,7},
     {7,0,0,3,8,5,0,0,7},
     {7,0,0,7,0,7,0,0,7},
     {7,0,0,4,8,6,0,0,7},
     {7,0,0,0,0,0,0,0,7},
-    {7,0,0,0,0,0,0,0,7},
+    {7,0,0,2,0,2,0,0,7},
     {4,8,8,8,0,8,8,8,6}
   }
   
@@ -88,21 +90,50 @@ function love.update( dt )
 end
  
 function love.keypressed(key, scancode, isrepeat)
-  if(key == "up" and player_y-1 > 0 and map[player_y-1][player_x] == 0) then
-    player_y = player_y-1
+  if(key == "up" and player_y-1 > 0) then
+    if(map[player_y-1][player_x] == 0) then
+      player_y = player_y-1
+    end
+    if(map[player_y-1][player_x] == 2) then
+      notification = "Interactable object found"
+    else
+      notification = "Arrow keys to move"
+    end
   end
-  if(key == "down" and player_y+1 < #map and map[player_y+1][player_x] == 0) then
-    player_y = player_y+1
+  if(key == "down" and player_y+1 < #map) then
+    if(map[player_y+1][player_x] == 0) then
+      player_y = player_y+1
+    end
+    if(map[player_y+1][player_x] == 2) then
+      notification = "Interactable object found"
+    else
+      notification = "Arrow keys to move"
+    end
   end
-  if(key == "right" and map[player_y][player_x+1] == 0) then
-    player_x = player_x+1
+  if(key == "right") then
+    if(map[player_y][player_x+1] == 0) then
+      player_x = player_x+1
+    end
+    if(map[player_y][player_x+1] == 2) then
+      notification = "Interactable object found"
+    else
+      notification = "Arrow keys to move"
+    end
   end
-  if(key == "left" and map[player_y][player_x-1] == 0) then
-    player_x = player_x-1
+  if(key == "left") then
+    if(map[player_y][player_x-1] == 0) then
+      player_x = player_x-1
+    end
+    if(map[player_y][player_x-1] == 2) then
+      notification = "Interactable object found"
+    else
+      notification = "Arrow keys to move"
+    end
   end
   renderWorld()
 end
  
 function love.draw()
 	draw_map()
+  love.graphics.print(notification, 10, 250)
 end

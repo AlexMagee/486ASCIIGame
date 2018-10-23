@@ -10,7 +10,7 @@ function renderWorld()
 	-- our tiles
 	tile = {}
 	for i=0,8 do -- change 3 to the number of tile images minus 1.
-		tile[i] = love.graphics.newImage( "tile"..i..".png" )
+		tile[i] = love.graphics.newImage( "assets/tile"..i..".png" )
 	end
  
 	-- the map (random junk + copy and paste)

@@ -1,11 +1,28 @@
-player_x = 15;
-player_y = 15;
-player_tile = 1;
+player = {
+  x=15,
+  y=15,
+  tile=1
+}
 
-gold = {
-  x = 6,
-  y = 3,
-  alive = true
+entities = {
+  {
+    x=6,
+    y=3,
+    tile=2,
+    alive=true
+  },
+  {
+    x=7,
+    y=3,
+    tile=2,
+    alive=true
+  },
+  {
+    x=8,
+    y=4,
+    tile=2,
+    alive=true
+  }
 }
 
 notification = "Arrow keys to move"
@@ -60,10 +77,7 @@ function renderWorld()
   }
   
   add_feature(map, house, 1, 1)
-  map[player_y][player_x] = player_tile
-  if(gold.alive == true) then
-    map[gold.y][gold.x] = 2
-  end
+  draw_entities()
  
 	-- map variables
   map_display_w = #map[1]
@@ -77,6 +91,15 @@ function renderWorld()
 	map_y = 0 - tile_h/2
 	map_display_buffer = 2 -- We have to buffer one tile before and behind our viewpoint.
 	
+end
+
+function draw_entities()
+  map[player.y][player.x] = player.tile
+  for i=1, #entities do
+    if(entities[i].alive==true) then
+      map[entities[i].y][entities[i].x] = entities[i].tile
+    end
+  end
 end
 
 function add_feature(map, feature, ox, oy)
@@ -114,56 +137,59 @@ end
 function love.update( dt )
   
 end
+
+function interact(y,x)
+  for i=1, #entities do
+        if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
+          notification = "Idol Collected"
+          entities[i].alive = false
+          currency = currency + 500
+          break
+        end
+      end
+end
  
 function love.keypressed(key, scancode, isrepeat)
-  if(key == "up" and player_y-1 > 0) then
-    if(map[player_y-1][player_x] == 0) then
-      player_y = player_y-1
+  if(key == "up" and player.y-1 > 0) then
+    if(map[player.y-1][player.x] == 0) then
+      player.y = player.y-1
       notification = "Arrow keys to move"
-    elseif(map[player_y-1][player_x] == 2) then
-      notification = "Idol Collected"
-      gold.alive = false
-      currency = currency + 500
-      player_y = player_y-1
+    elseif(map[player.y-1][player.x] == 2) then
+      interact(player.y-1,player.x)
+      player.y = player.y-1
     else
       notification = "Arrow keys to move"
     end
   end
-  if(key == "down" and player_y+1 < #map) then
-    if(map[player_y+1][player_x] == 0) then
-      player_y = player_y+1
+  if(key == "down" and player.y+1 < #map) then
+    if(map[player.y+1][player.x] == 0) then
+      player.y = player.y+1
       notification = "Arrow keys to move"
-    elseif(map[player_y+1][player_x] == 2) then
-      notification = "Idol Collected"
-      gold.alive = false
-      currency = currency + 500
-      player_y = player_y+1
+    elseif(map[player.y+1][player.x] == 2) then
+      interact(player.y+1,player.x)
+      player.y = player.y+1
     else
       notification = "Arrow keys to move"
     end
   end
   if(key == "right") then
-    if(map[player_y][player_x+1] == 0) then
-      player_x = player_x+1
+    if(map[player.y][player.x+1] == 0) then
+      player.x = player.x+1
       notification = "Arrow keys to move"
-    elseif(map[player_y][player_x+1] == 2) then
-      notification = "Idol Collected"
-      gold.alive = false
-      currency = currency + 500
-      player_x = player_x+1
+    elseif(map[player.y][player.x+1] == 2) then
+      interact(player.y,player.x+1)
+      player.x = player.x+1
     else
       notification = "Arrow keys to move"
     end
   end
   if(key == "left") then
-    if(map[player_y][player_x-1] == 0) then
-      player_x = player_x-1
+    if(map[player.y][player.x-1] == 0) then
+      player.x = player.x-1
       notification = "Arrow keys to move"
-    elseif(map[player_y][player_x-1] == 2) then
-      notification = "Idol Collected"
-      gold.alive = false
-      currency = currency + 500
-      player_x = player_x-1
+    elseif(map[player.y][player.x-1] == 2) then
+      interact(player.y,player.x-1)
+      player.x = player.x-1
     else
       notification = "Arrow keys to move"
     end

@@ -2,7 +2,29 @@ player_x = 15;
 player_y = 15;
 player_tile = 1;
 
+gold = {
+  x = 6,
+  y = 3,
+  alive = true
+}
+
 notification = "Arrow keys to move"
+
+currency = 0
+
+wallColor = {179,89,0}
+
+tileColors = {
+  {0,0,0},
+  {255,0,0},
+  {255,215,0},
+  wallColor,
+  wallColor,
+  wallColor,
+  wallColor,
+  wallColor,
+  wallColor
+}
 
 function love.load()
   renderWorld()
@@ -27,18 +49,21 @@ function renderWorld()
 
   house = {
     {3,8,8,8,8,8,8,8,5},
-    {7,0,2,0,2,0,2,0,7},
+    {7,0,0,0,0,0,0,0,7},
     {7,0,0,0,0,0,0,0,7},
     {7,0,0,3,8,5,0,0,7},
     {7,0,0,7,0,7,0,0,7},
     {7,0,0,4,8,6,0,0,7},
     {7,0,0,0,0,0,0,0,7},
-    {7,0,0,2,0,2,0,0,7},
+    {7,0,0,0,0,0,0,0,7},
     {4,8,8,8,0,8,8,8,6}
   }
   
   add_feature(map, house, 1, 1)
   map[player_y][player_x] = player_tile
+  if(gold.alive == true) then
+    map[gold.y][gold.x] = 2
+  end
  
 	-- map variables
   map_display_w = #map[1]
@@ -76,6 +101,7 @@ function draw_map()
 			if y+firstTile_y >= 1 and y+firstTile_y <= map_h
 				and x+firstTile_x >= 1 and x+firstTile_x <= map_w
 			then
+        love.graphics.setColor(tileColors[map[y+firstTile_y][x+firstTile_x]+1])
 				love.graphics.draw(
 					tile[map[y+firstTile_y][x+firstTile_x]], 
 					((x-1)*tile_w) - offset_x - tile_w/2, 
@@ -93,9 +119,12 @@ function love.keypressed(key, scancode, isrepeat)
   if(key == "up" and player_y-1 > 0) then
     if(map[player_y-1][player_x] == 0) then
       player_y = player_y-1
-    end
-    if(map[player_y-1][player_x] == 2) then
-      notification = "Interactable object found"
+      notification = "Arrow keys to move"
+    elseif(map[player_y-1][player_x] == 2) then
+      notification = "Idol Collected"
+      gold.alive = false
+      currency = currency + 500
+      player_y = player_y-1
     else
       notification = "Arrow keys to move"
     end
@@ -103,9 +132,12 @@ function love.keypressed(key, scancode, isrepeat)
   if(key == "down" and player_y+1 < #map) then
     if(map[player_y+1][player_x] == 0) then
       player_y = player_y+1
-    end
-    if(map[player_y+1][player_x] == 2) then
-      notification = "Interactable object found"
+      notification = "Arrow keys to move"
+    elseif(map[player_y+1][player_x] == 2) then
+      notification = "Idol Collected"
+      gold.alive = false
+      currency = currency + 500
+      player_y = player_y+1
     else
       notification = "Arrow keys to move"
     end
@@ -113,9 +145,12 @@ function love.keypressed(key, scancode, isrepeat)
   if(key == "right") then
     if(map[player_y][player_x+1] == 0) then
       player_x = player_x+1
-    end
-    if(map[player_y][player_x+1] == 2) then
-      notification = "Interactable object found"
+      notification = "Arrow keys to move"
+    elseif(map[player_y][player_x+1] == 2) then
+      notification = "Idol Collected"
+      gold.alive = false
+      currency = currency + 500
+      player_x = player_x+1
     else
       notification = "Arrow keys to move"
     end
@@ -123,9 +158,12 @@ function love.keypressed(key, scancode, isrepeat)
   if(key == "left") then
     if(map[player_y][player_x-1] == 0) then
       player_x = player_x-1
-    end
-    if(map[player_y][player_x-1] == 2) then
-      notification = "Interactable object found"
+      notification = "Arrow keys to move"
+    elseif(map[player_y][player_x-1] == 2) then
+      notification = "Idol Collected"
+      gold.alive = false
+      currency = currency + 500
+      player_x = player_x-1
     else
       notification = "Arrow keys to move"
     end
@@ -135,5 +173,8 @@ end
  
 function love.draw()
 	draw_map()
+  love.graphics.setColor(255,255,255)
   love.graphics.print(notification, 10, 250)
+  love.graphics.setColor(0,255,0)
+  love.graphics.print("$"..currency, 10,275)
 end

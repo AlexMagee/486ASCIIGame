@@ -6,21 +6,10 @@ player = {
 
 entities = {
   {
-    x=6,
-    y=3,
-    tile=2,
-    alive=true
-  },
-  {
-    x=7,
-    y=3,
-    tile=2,
-    alive=true
-  },
-  {
     x=8,
     y=4,
     tile=2,
+    color = {r=0,b=0,g=255},
     alive=true
   }
 }
@@ -33,14 +22,16 @@ wallColor = {179,89,0}
 
 tileColors = {
   {0,0,0},
-  {255,0,0},
+  {255,255,255},
   {255,215,0},
   wallColor,
   wallColor,
   wallColor,
   wallColor,
   wallColor,
-  wallColor
+  wallColor,
+  wallColor,
+  {0,255,0}
 }
 
 function love.load()
@@ -50,7 +41,7 @@ end
 function renderWorld()
 	-- our tiles
 	tile = {}
-	for i=0,8 do -- change 3 to the number of tile images minus 1.
+	for i=0,10 do -- change 3 to the number of tile images minus 1.
 		tile[i] = love.graphics.newImage( "assets/tile"..i..".png" )
 	end
  
@@ -60,20 +51,28 @@ function renderWorld()
   for x=1, 20 do
     map[x]={}
     for y=1, 20 do
-      map[x][y] = 0
+      map[x][y] = 10
     end
   end
 
   house = {
-    {3,8,8,8,8,8,8,8,5},
-    {7,0,0,0,0,0,0,0,7},
-    {7,0,0,0,0,0,0,0,7},
-    {7,0,0,3,8,5,0,0,7},
-    {7,0,0,7,0,7,0,0,7},
-    {7,0,0,4,8,6,0,0,7},
-    {7,0,0,0,0,0,0,0,7},
-    {7,0,0,0,0,0,0,0,7},
-    {4,8,8,8,0,8,8,8,6}
+    {-1,-1,3,8,8,8,8,8,8,8,5,-1,-1,-1,-1,-1,-1},
+    {-1,-1,7,0,9,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {3,8,6,9,7,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,9,3,8,8,8,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,9,0,7,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,0,7,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,8,8,8,7,0,4,8,8,9,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,9,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
+    {7,0,0,0,7,0,0,0,0,0,9,-1,-1,-1,-1,-1,-1},
+    {4,5,0,0,7,0,0,8,8,8,6,-1,-1,-1,-1,-1,-1},
+    {-1,7,0,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1,-1,-1},
+    {0,9,0,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1,-1,-1},
+    {-1,4,8,8,8,8,8,8,6,-1,-1,-1,-1,-1,-1,-1,-1}
   }
   
   add_feature(map, house, 1, 1)
@@ -94,18 +93,18 @@ function renderWorld()
 end
 
 function draw_entities()
-  map[player.y][player.x] = player.tile
   for i=1, #entities do
     if(entities[i].alive==true) then
       map[entities[i].y][entities[i].x] = entities[i].tile
     end
   end
+  map[player.y][player.x] = player.tile
 end
 
 function add_feature(map, feature, ox, oy)
   for x=1, #feature[1] do
     for y=1, #feature do
-      if(feature[x][y]~=0) then
+      if(feature[x][y]~=-1) then
         map[ox+x][oy+y] = feature[x][y];
       end
     end
@@ -138,20 +137,29 @@ function love.update( dt )
   
 end
 
-function interact(y,x)
+function checkInteract(y,x)
   for i=1, #entities do
-        if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
-          notification = "Idol Collected"
-          entities[i].alive = false
-          currency = currency + 500
-          break
-        end
-      end
+    if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
+      notification = "Press E to interact"
+      break
+    end
+  end
+end
+
+function interact(x,y)
+  for i=1, #entities do
+    if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
+      entities[i].alive = false
+      currency = currency + 500
+      notification = "Arrow keys to move"
+      break
+    end
+  end
 end
  
 function love.keypressed(key, scancode, isrepeat)
   if(key == "up" and player.y-1 > 0) then
-    if(map[player.y-1][player.x] == 0) then
+    if(map[player.y-1][player.x] == 0 or map[player.y-1][player.x] >= 9) then
       player.y = player.y-1
       notification = "Arrow keys to move"
     elseif(map[player.y-1][player.x] == 2) then
@@ -162,37 +170,40 @@ function love.keypressed(key, scancode, isrepeat)
     end
   end
   if(key == "down" and player.y+1 < #map) then
-    if(map[player.y+1][player.x] == 0) then
+    if(map[player.y+1][player.x] == 0 or map[player.y+1][player.x] >= 9) then
       player.y = player.y+1
       notification = "Arrow keys to move"
     elseif(map[player.y+1][player.x] == 2) then
-      interact(player.y+1,player.x)
+      checkInteract(player.y+1,player.x)
       player.y = player.y+1
     else
       notification = "Arrow keys to move"
     end
   end
-  if(key == "right") then
-    if(map[player.y][player.x+1] == 0) then
+  if(key == "right" and player.x+1<#map[1]) then
+    if(map[player.y][player.x+1] == 0 or map[player.y][player.x+1] >= 9) then
       player.x = player.x+1
       notification = "Arrow keys to move"
     elseif(map[player.y][player.x+1] == 2) then
-      interact(player.y,player.x+1)
+      checkInteract(player.y,player.x+1)
       player.x = player.x+1
     else
       notification = "Arrow keys to move"
     end
   end
-  if(key == "left") then
-    if(map[player.y][player.x-1] == 0) then
+  if(key == "left" and player.x-1>0) then
+    if(map[player.y][player.x-1] == 0 or map[player.y][player.x-1] >= 9) then
       player.x = player.x-1
       notification = "Arrow keys to move"
     elseif(map[player.y][player.x-1] == 2) then
-      interact(player.y,player.x-1)
+      checkInteract(player.y,player.x-1)
       player.x = player.x-1
     else
       notification = "Arrow keys to move"
     end
+  end
+  if(key == "e") then
+    interact(player.x,player.y)
   end
   renderWorld()
 end

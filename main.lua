@@ -10,20 +10,42 @@ entities = {
     y=4,
     tile=2,
     color = {r=0,b=0,g=255},
-    alive=true
+    alive=true,
+    name = "Idol"
+  },
+  {
+    x=9,
+    y=4,
+    tile=2,
+    color = {r=0,b=0,g=255},
+    alive=true,
+    name = "Tooth Brush"
   }
 }
+
+inventory = {
+  {
+    x=8,
+    y=4,
+    tile=2,
+    color = {r=0,b=0,g=255},
+    alive=true,
+    name = "Idol"
+  }
+}
+
+inventoryString = ""
 
 notification = "Arrow keys to move"
 
 currency = 0
 
-wallColor = {179,89,0}
+wallColor = {179/255,89/255,0}
 
 tileColors = {
   {0,0,0},
-  {255,255,255},
-  {255,215,0},
+  {255/255,255/255,255/255},
+  {255/255,215/255,0},
   wallColor,
   wallColor,
   wallColor,
@@ -31,7 +53,7 @@ tileColors = {
   wallColor,
   wallColor,
   wallColor,
-  {0,255,0}
+  {0,255/255,0}
 }
 
 function love.load()
@@ -150,6 +172,7 @@ function interact(x,y)
   for i=1, #entities do
     if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
       entities[i].alive = false
+      inventory[#inventory+1] = entities[i]
       currency = currency + 500
       notification = "Arrow keys to move"
       break
@@ -207,6 +230,14 @@ function love.keypressed(key, scancode, isrepeat)
   end
   renderWorld()
 end
+
+function buildInventory()
+  result = "Inventory:\n"
+  for i=1,#inventory do
+    result = result .. inventory[i].name .. "\n"
+  end
+  inventoryString = result
+end
  
 function love.draw()
 	draw_map()
@@ -214,4 +245,7 @@ function love.draw()
   love.graphics.print(notification, 10, 250)
   love.graphics.setColor(0,255,0)
   love.graphics.print("$"..currency, 10,280)
+  love.graphics.setColor(1,1,1)
+  buildInventory()
+  love.graphics.print(inventoryString,175,10)
 end

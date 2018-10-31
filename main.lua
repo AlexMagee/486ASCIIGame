@@ -15,7 +15,8 @@ entities = {
     tileColor=5,
     color = {r=0,g=0,b=255},
     alive=true,
-    notification="Red Idol found,\nPress E to interact"
+    notification="Red Idol found,\nPress E to interact",
+    name = "Tooth Brush"
   },
   {
     x=10,
@@ -24,7 +25,8 @@ entities = {
     tileColor=4,
     color = {r=0,g=0,b=255},
     alive=true,
-    notification="Yellow Idol found,\nPress E to interact"
+    notification="Yellow Idol found,\nPress E to interact",
+    name = "Tooth Brush"
   },
   {
     x=3,
@@ -33,9 +35,12 @@ entities = {
     tileColor=6,
     color = {r=0,b=0,g=255},
     alive=true,
-    notification="Blue Idol found,\nPress E to interact"
+    notification="Blue Idol found,\nPress E to interact",
+    name = "Tooth Brush"
   }
 }
+
+inventoryString = ""
 
 notification = "Arrow keys to move"
 
@@ -155,6 +160,14 @@ function love.keypressed(key, scancode, isrepeat)
   end
   renderWorld()
 end
+
+function buildInventory()
+  result = "Inventory:\n"
+  for i=1,#inventory do
+    result = result .. inventory[i].name .. "\n"
+  end
+  inventoryString = result
+end
  
 function love.draw()
 	draw_map(realmap.landscape.tiles, realmap.landscape.colors)
@@ -163,4 +176,7 @@ function love.draw()
   love.graphics.print(notification, 10, 250)
   love.graphics.setColor(0,255,0)
   love.graphics.print("$"..currency, 10,280)
+  love.graphics.setColor(1,1,1)
+  buildInventory()
+  love.graphics.print(inventoryString,175,10)
 end

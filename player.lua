@@ -2,7 +2,8 @@ player = {
   x=3,
   y=7,
   tile=1,
-  tileColor=1
+  tileColor=1,
+  dead = false
 }
 
 function checkInteract(y,x)
@@ -22,10 +23,7 @@ function interact(x,y)
   if(realmap.entities.collisions[y][x]) then
     for i=1, #entities do
       if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
-        entities[i].alive = false
-        currency = currency + 500
-        notification = "Arrow keys to move"
-        inventory[#inventory+1]=entities[i]
+        entityInteract(i)
         break
       end
     end
@@ -33,6 +31,9 @@ function interact(x,y)
 end
  
 function playerMove(key)
+  if(player.dead) then
+    return
+  end
   if(key == "up" and player.y-1 > 0 and not realmap.landscape.collisions[player.y-1][player.x]) then
     player.y = player.y-1
   end

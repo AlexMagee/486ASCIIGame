@@ -1,4 +1,4 @@
-inventory = {{}}
+inventory = {}
 
 function buildInventory()
   result = "Inventory:\n"

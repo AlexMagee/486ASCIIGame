@@ -6,6 +6,8 @@ require("inventory")
 notification = "Arrow keys to move"
 currency = 0
 
+mapOffset = {15,15}
+
 function love.load()
   tile = {}
 	for i=0,10 do
@@ -14,15 +16,15 @@ function love.load()
   
   draw_entities()
 
-  map_display_w = #realmap.landscape.tiles[1]
-	map_display_h = #realmap.landscape.tiles
+  map_display_w = #realmap.landscape.tiles[1]+mapOffset[1]
+	map_display_h = #realmap.landscape.tiles+mapOffset[2]
 	tile_w = 8
 	tile_h = 12
   
 	map_w = #realmap.landscape.tiles[1]
 	map_h = #realmap.landscape.tiles
-	map_x = 0 - tile_w/2
-	map_y = 0 - tile_h/2
+	map_x = -mapOffset[1] - tile_w/2
+	map_y = -mapOffset[2] - tile_h/2
 	map_display_buffer = 2
 end
  

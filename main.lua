@@ -1,7 +1,10 @@
+require("maps")
+
 player = {
-  x=15,
-  y=15,
-  tile=1
+  x=3,
+  y=7,
+  tile=1,
+  tileColor=1
 }
 
 entities = {
@@ -9,28 +12,31 @@ entities = {
     x=8,
     y=4,
     tile=2,
-    color = {r=0,b=0,g=255},
+    tileColor=5,
+    color = {r=0,g=0,b=255},
     alive=true,
-    name = "Idol"
+    notification="Red Idol found,\nPress E to interact",
+    name = "Tooth Brush"
   },
   {
-    x=9,
-    y=4,
+    x=10,
+    y=6,
     tile=2,
-    color = {r=0,b=0,g=255},
+    tileColor=4,
+    color = {r=0,g=0,b=255},
     alive=true,
+    notification="Yellow Idol found,\nPress E to interact",
     name = "Tooth Brush"
-  }
-}
-
-inventory = {
+  },
   {
-    x=8,
-    y=4,
+    x=3,
+    y=14,
     tile=2,
+    tileColor=6,
     color = {r=0,b=0,g=255},
     alive=true,
-    name = "Idol"
+    notification="Blue Idol found,\nPress E to interact",
+    name = "Tooth Brush"
   }
 }
 
@@ -39,22 +45,6 @@ inventoryString = ""
 notification = "Arrow keys to move"
 
 currency = 0
-
-wallColor = {179/255,89/255,0}
-
-tileColors = {
-  {0,0,0},
-  {255/255,255/255,255/255},
-  {255/255,215/255,0},
-  wallColor,
-  wallColor,
-  wallColor,
-  wallColor,
-  wallColor,
-  wallColor,
-  wallColor,
-  {0,255/255,0}
-}
 
 function love.load()
   renderWorld()
@@ -68,46 +58,17 @@ function renderWorld()
 	end
  
 	-- the map (random junk + copy and paste)
-	map={{}}
-  
-  for x=1, 20 do
-    map[x]={}
-    for y=1, 20 do
-      map[x][y] = 10
-    end
-  end
-
-  house = {
-    {-1,-1,3,8,8,8,8,8,8,8,5,-1,-1,-1,-1,-1,-1},
-    {-1,-1,7,0,9,0,8,9,0,9,7,-1,-1,-1,-1,-1,-1},
-    {3,8,6,9,7,0,0,0,0,9,7,-1,-1,-1,-1,-1,-1},
-    {7,7,9,0,7,9,3,8,8,8,7,-1,-1,-1,-1,-1,-1},
-    {7,0,0,0,9,0,9,0,0,7,7,-1,-1,-1,-1,-1,-1},
-    {7,9,8,0,7,0,7,8,8,8,7,-1,-1,-1,-1,-1,-1},
-    {7,8,8,8,7,0,7,0,0,0,7,-1,-1,-1,-1,-1,-1},
-    {7,0,0,0,9,0,7,0,0,0,7,-1,-1,-1,-1,-1,-1},
-    {7,8,0,0,7,0,4,8,8,9,7,-1,-1,-1,-1,-1,-1},
-    {7,9,0,0,7,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1},
-    {7,9,0,0,7,0,0,7,0,0,7,-1,-1,-1,-1,-1,-1},
-    {7,8,0,0,7,0,0,7,0,0,7,-1,-1,-1,-1,-1,-1},
-    {7,0,0,0,7,0,0,0,0,0,9,-1,-1,-1,-1,-1,-1},
-    {4,5,0,0,7,0,0,8,8,8,6,-1,-1,-1,-1,-1,-1},
-    {-1,7,0,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1,-1,-1},
-    {0,9,0,0,0,0,0,0,7,-1,-1,-1,-1,-1,-1,-1,-1},
-    {-1,4,8,8,8,8,8,8,6,-1,-1,-1,-1,-1,-1,-1,-1}
-  }
-  
-  add_feature(map, house, 1, 1)
+  map = realmap.landscape.tiles
   draw_entities()
  
 	-- map variables
-  map_display_w = #map[1]
-	map_display_h = #map
+  map_display_w = #realmap.landscape.tiles[1]
+	map_display_h = #realmap.landscape.tiles
 	tile_w = 8
 	tile_h = 12
   
-	map_w = #map[1] -- Obtains the width of the first row of the map
-	map_h = #map -- Obtains the height of the map
+	map_w = #realmap.landscape.tiles[1] -- Obtains the width of the first row of the map
+	map_h = #realmap.landscape.tiles -- Obtains the height of the map
 	map_x = 0 - tile_w/2
 	map_y = 0 - tile_h/2
 	map_display_buffer = 2 -- We have to buffer one tile before and behind our viewpoint.
@@ -115,25 +76,19 @@ function renderWorld()
 end
 
 function draw_entities()
+  resetEntitiesTiles()
   for i=1, #entities do
     if(entities[i].alive==true) then
-      map[entities[i].y][entities[i].x] = entities[i].tile
+      realmap.entities.tiles[entities[i].y][entities[i].x] = entities[i].tile
+      realmap.entities.colors[entities[i].y][entities[i].x] = entities[i].tileColor
+      realmap.entities.collisions[entities[i].y][entities[i].x] = true
     end
   end
-  map[player.y][player.x] = player.tile
-end
-
-function add_feature(map, feature, ox, oy)
-  for x=1, #feature[1] do
-    for y=1, #feature do
-      if(feature[x][y]~=-1) then
-        map[ox+x][oy+y] = feature[x][y];
-      end
-    end
-  end
+  realmap.entities.tiles[player.y][player.x] = player.tile
+  realmap.entities.colors[player.y][player.x] = player.tileColor
 end
  
-function draw_map()
+function draw_map(map_name, colors)
 	offset_x = map_x % tile_w
 	offset_y = map_y % tile_h
 	firstTile_x = math.floor(map_x / tile_w)
@@ -144,10 +99,11 @@ function draw_map()
 			-- Note that this condition block allows us to go beyond the edge of the map.
 			if y+firstTile_y >= 1 and y+firstTile_y <= map_h
 				and x+firstTile_x >= 1 and x+firstTile_x <= map_w
+        and map_name[y+firstTile_y][x+firstTile_x] ~= 0
 			then
-        love.graphics.setColor(tileColors[map[y+firstTile_y][x+firstTile_x]+1])
+        love.graphics.setColor(realmap.palette[colors[y+firstTile_y][x+firstTile_x]])
 				love.graphics.draw(
-					tile[map[y+firstTile_y][x+firstTile_x]], 
+					tile[map_name[y+firstTile_y][x+firstTile_x]], 
 					((x-1)*tile_w) - offset_x - tile_w/2, 
 					((y-1)*tile_h) - offset_y - tile_h/2)
 			end
@@ -160,71 +116,45 @@ function love.update( dt )
 end
 
 function checkInteract(y,x)
-  for i=1, #entities do
-    if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
-      notification = "Idol found,\nPress E to interact"
-      break
+  if(realmap.entities.collisions[y][x]) then
+    for i=1, #entities do
+      if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
+        notification = entities[i].notification
+        break
+      end
     end
+  else 
+    notification = "Arrow keys to move"
   end
 end
 
 function interact(x,y)
-  for i=1, #entities do
-    if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
-      entities[i].alive = false
-      inventory[#inventory+1] = entities[i]
-      currency = currency + 500
-      notification = "Arrow keys to move"
-      break
+  if(realmap.entities.collisions[y][x]) then
+    for i=1, #entities do
+      if(entities[i].x==x and entities[i].y==y and entities[i].alive==true) then
+        entities[i].alive = false
+        currency = currency + 500
+        notification = "Arrow keys to move"
+        break
+      end
     end
   end
 end
  
 function love.keypressed(key, scancode, isrepeat)
-  if(key == "up" and player.y-1 > 0) then
-    if(map[player.y-1][player.x] == 0 or map[player.y-1][player.x] >= 9) then
-      player.y = player.y-1
-      notification = "Arrow keys to move"
-    elseif(map[player.y-1][player.x] == 2) then
-      interact(player.y-1,player.x)
-      player.y = player.y-1
-    else
-      notification = "Arrow keys to move"
-    end
+  if(key == "up" and player.y-1 > 0 and not realmap.landscape.collisions[player.y-1][player.x]) then
+    player.y = player.y-1
   end
-  if(key == "down" and player.y+1 < #map) then
-    if(map[player.y+1][player.x] == 0 or map[player.y+1][player.x] >= 9) then
-      player.y = player.y+1
-      notification = "Arrow keys to move"
-    elseif(map[player.y+1][player.x] == 2) then
-      checkInteract(player.y+1,player.x)
-      player.y = player.y+1
-    else
-      notification = "Arrow keys to move"
-    end
+  if(key == "down" and player.y+1 < #map and not realmap.landscape.collisions[player.y+1][player.x]) then
+    player.y = player.y+1
   end
-  if(key == "right" and player.x+1<#map[1]) then
-    if(map[player.y][player.x+1] == 0 or map[player.y][player.x+1] >= 9) then
-      player.x = player.x+1
-      notification = "Arrow keys to move"
-    elseif(map[player.y][player.x+1] == 2) then
-      checkInteract(player.y,player.x+1)
-      player.x = player.x+1
-    else
-      notification = "Arrow keys to move"
-    end
+  if(key == "right" and player.x+1<#map[1] and not realmap.landscape.collisions[player.y][player.x+1]) then
+    player.x = player.x+1
   end
-  if(key == "left" and player.x-1>0) then
-    if(map[player.y][player.x-1] == 0 or map[player.y][player.x-1] >= 9) then
-      player.x = player.x-1
-      notification = "Arrow keys to move"
-    elseif(map[player.y][player.x-1] == 2) then
-      checkInteract(player.y,player.x-1)
-      player.x = player.x-1
-    else
-      notification = "Arrow keys to move"
-    end
+  if(key == "left" and player.x-1>0 and not realmap.landscape.collisions[player.y][player.x-1]) then
+    player.x = player.x-1
   end
+  checkInteract(player.y,player.x)
   if(key == "e") then
     interact(player.x,player.y)
   end
@@ -240,7 +170,8 @@ function buildInventory()
 end
  
 function love.draw()
-	draw_map()
+	draw_map(realmap.landscape.tiles, realmap.landscape.colors)
+  draw_map(realmap.entities.tiles, realmap.entities.colors)
   love.graphics.setColor(255,255,255)
   love.graphics.print(notification, 10, 250)
   love.graphics.setColor(0,255,0)
